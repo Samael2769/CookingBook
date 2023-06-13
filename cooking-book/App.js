@@ -1,8 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, Button } from 'react-native';
 import React, { useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation, useRoute } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import * as FileSystem from 'expo-file-system';
 
 import bdd from './bdd.json';
 
@@ -71,10 +72,44 @@ function CreateRecepies() {
   );
 }
 
+function RecipeDetails() {
+  const route = useRoute();
+  const { recipe } = route.params;
+  const handleDownload = async () => {
+    const fileName = `${recipe.name}.json`;
+    const fileUri = FileSystem.documentDirectory + fileName;
+
+    try {
+      await FileSystem.writeAsStringAsync(fileUri, JSON.stringify(recipe));
+      console.log('Recipe file downloaded:', fileName);
+    } catch (error) {
+      console.log('Error downloading recipe file:', error);
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.recetteName}>{recipe.name}</Text>
+      {/* Display other recipe information here */}
+      <TouchableOpacity onPress={handleDownload}>
+        <Text>Download</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
 function SeeRecepies() {
+  const navigation = useNavigation();
+
+  const handleRecipePress = (recipe) => {
+    navigation.navigate('RecipeDetails',{ recipe: recipe });
+  };
+
   const renderRecettes = bdd.recettes.map((recette, index) => (
     <View key={index} style={styles.recetteContainer}>
-      <Text style={styles.recetteName}>{recette.name}</Text>
+      <TouchableOpacity onPress={() => handleRecipePress(recette)}>
+        <Text style={styles.recetteName}>{recette.name}</Text>
+      </TouchableOpacity>
     </View>
   ));
 
@@ -96,6 +131,7 @@ export default function App() {
         <Stack.Screen name="Main" component={MainPage} />
         <Stack.Screen name="Crée ta recette" component={CreateRecepies} />
         <Stack.Screen name="Voir tes recettes" component={SeeRecepies} />
+        <Stack.Screen name="RecipeDetails" component={RecipeDetails} />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>
