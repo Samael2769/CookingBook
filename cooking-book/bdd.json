@@ -1,10 +1,34 @@
 {
     "recettes": [
         {
-            "name": "Poulet au curry"
+            "name": "Poulet au curry",
+            "ingredients": [
+                {
+                    "name": "Poulet",
+                    "quantity": 1
+                },
+                {
+                    "name": "Curry",
+                    "quantity": 1
+                },
+                {
+                    "name": "Riz",
+                    "quantity": 1
+                }
+            ]
         },
         {
-            "name": "Steack frites"
+            "name": "Steack frites",
+            "ingredients": [
+                {
+                    "name": "Steack",
+                    "quantity": 1
+                },
+                {
+                    "name": "Frites",
+                    "quantity": 1
+                }
+            ]
         }
     ]
 }

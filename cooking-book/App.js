@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, Button } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, Button, Modal } from 'react-native';
 import React, { useState } from 'react';
 import { NavigationContainer, useNavigation, useRoute } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -31,13 +31,19 @@ function MainPage({ navigation }) {
 
 function CreateRecepies() {
   const [recipeName, setRecipeName] = useState('');
-  //const [recipeInstructions, setRecipeInstructions] = useState('');
+  const [recipeIngredient, setRecipeIngredient] = useState('');
+  const [recipeQuantity, setRecipeQuantity] = useState('');
+  const [ingredientsList, setIngredientsList] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const handleRecipeCreate = () => {
     // Create a new recipe object with the captured details
     const newRecipe = {
       name: recipeName,
-      //instructions: recipeInstructions,
+      ingredients: ingredientsList.map((ingredient) => ({
+        name: ingredient.name,
+        quantity: ingredient.quantity,
+      })),
     };
 
     // Add the new recipe to the existing recipes array
@@ -45,10 +51,35 @@ function CreateRecepies() {
 
     // Reset the form fields
     setRecipeName('');
-    //setRecipeInstructions('');
+    setRecipeIngredient('');
+    setRecipeQuantity('');
+    setIngredientsList([]);
 
     // Navigate to the desired page or perform any other action
     // ...
+  };
+
+  const handleAddIngredient = () => {
+    setModalVisible(true);
+  };
+
+  const handleModalConfirm = () => {
+    if (recipeIngredient.trim() !== '' && recipeQuantity.trim() !== '') {
+      const ingredient = {
+        name: recipeIngredient,
+        quantity: recipeQuantity,
+      };
+      setIngredientsList((prevIngredients) => [...prevIngredients, ingredient]);
+      setRecipeIngredient('');
+      setRecipeQuantity('');
+      setModalVisible(false);
+    }
+  };
+
+  const handleModalCancel = () => {
+    setRecipeIngredient('');
+    setRecipeQuantity('');
+    setModalVisible(false);
   };
 
   return (
@@ -60,14 +91,43 @@ function CreateRecepies() {
         value={recipeName}
         onChangeText={setRecipeName}
       />
-      {/* <TextInput
-        style={styles.input}
-        placeholder="Recipe Instructions"
-        value={recipeInstructions}
-        onChangeText={setRecipeInstructions}
-        multiline
-      /> */}
-      <Button title="Create Recipe" onPress={handleRecipeCreate} />
+      <TouchableOpacity style={styles.button} onPress={handleAddIngredient}>
+        <Text>Add Ingredient</Text>
+      </TouchableOpacity>
+      {ingredientsList.map((ingredient, index) => (
+        <Text key={index}>
+          {ingredient.name} - {ingredient.quantity}
+        </Text>
+      ))}
+      <TouchableOpacity style={styles.button} onPress={handleRecipeCreate}>
+        <Text>Create Recipe</Text>
+      </TouchableOpacity>
+
+      <Modal visible={modalVisible}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text>Add Ingredient</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Ingredient"
+              value={recipeIngredient}
+              onChangeText={setRecipeIngredient}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Quantity"
+              value={recipeQuantity}
+              onChangeText={setRecipeQuantity}
+            />
+            <TouchableOpacity style={styles.button} onPress={handleModalConfirm}>
+              <Text>Confirm</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={handleModalCancel}>
+              <Text>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -90,7 +150,13 @@ function RecipeDetails() {
   return (
     <View style={styles.container}>
       <Text style={styles.recetteName}>{recipe.name}</Text>
-      {/* Display other recipe information here */}
+      <Text>Liste des ingrédients</Text>
+      {
+        //keys = name, quantity
+        recipe.ingredients.map((ingredient, index) => (
+          <Text key={index}>{ingredient.name} : {ingredient.quantity}</Text>
+        ))
+      }
       <TouchableOpacity onPress={handleDownload}>
         <Text>Download</Text>
       </TouchableOpacity>
@@ -157,5 +223,16 @@ const styles = StyleSheet.create({
   recetteName: {
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Couleur de fond semi-transparente
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 5,
   },
 });
