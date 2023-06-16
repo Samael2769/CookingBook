@@ -15,6 +15,11 @@
                     "name": "Riz",
                     "quantity": 1
                 }
+            ],
+            "steps": [
+                "Faire cuire le poulet",
+                "Faire cuire le riz",
+                "Mélanger le poulet et le riz"
             ]
         },
         {
@@ -28,6 +33,11 @@
                     "name": "Frites",
                     "quantity": 1
                 }
+            ],
+            "steps": [
+                "Faire cuire le steack",
+                "Faire cuire les frites",
+                "Mélanger le steack et les frites"
             ]
         }
     ]

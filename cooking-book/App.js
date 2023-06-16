@@ -35,6 +35,9 @@ function CreateRecepies() {
   const [recipeQuantity, setRecipeQuantity] = useState('');
   const [ingredientsList, setIngredientsList] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [stepModalVisible, setStepModalVisible] = useState(false);
+  const [stepsList, setStepsList] = useState([]);
+  const [recipeStep, setRecipeStep] = useState('');
 
   const handleRecipeCreate = () => {
     // Create a new recipe object with the captured details
@@ -44,8 +47,10 @@ function CreateRecepies() {
         name: ingredient.name,
         quantity: ingredient.quantity,
       })),
+      //steps is an array of strings
+      steps: stepsList.map((step) => step.step),
     };
-
+    console.log(newRecipe);
     // Add the new recipe to the existing recipes array
     bdd.recettes.push(newRecipe);
 
@@ -54,6 +59,7 @@ function CreateRecepies() {
     setRecipeIngredient('');
     setRecipeQuantity('');
     setIngredientsList([]);
+    setStepsList([]);
 
     // Navigate to the desired page or perform any other action
     // ...
@@ -61,6 +67,10 @@ function CreateRecepies() {
 
   const handleAddIngredient = () => {
     setModalVisible(true);
+  };
+
+  const handleAddStep = () => {
+    setStepModalVisible(true);
   };
 
   const handleModalConfirm = () => {
@@ -76,10 +86,26 @@ function CreateRecepies() {
     }
   };
 
+  const handleModalConfirmStep = () => {
+    if (recipeStep.trim() !== '') {
+      const step = {
+        step: recipeStep,
+      };
+      setStepsList((prevSteps) => [...prevSteps, step]);
+      setRecipeStep('');
+      setStepModalVisible(false);
+    }
+  };
+
   const handleModalCancel = () => {
     setRecipeIngredient('');
     setRecipeQuantity('');
     setModalVisible(false);
+  };
+
+  const handleModalCancelStep = () => {
+    setRecipeStep('');
+    setStepModalVisible(false);
   };
 
   return (
@@ -98,6 +124,12 @@ function CreateRecepies() {
         <Text key={index}>
           {ingredient.name} - {ingredient.quantity}
         </Text>
+      ))}
+      <TouchableOpacity style={styles.button} onPress={handleAddStep}>
+        <Text>Add Step</Text>
+      </TouchableOpacity>
+      {stepsList.map((step, index) => (
+        <Text key={index}>{step.step}</Text>
       ))}
       <TouchableOpacity style={styles.button} onPress={handleRecipeCreate}>
         <Text>Create Recipe</Text>
@@ -123,6 +155,25 @@ function CreateRecepies() {
               <Text>Confirm</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress={handleModalCancel}>
+              <Text>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      <Modal visible={stepModalVisible}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text>Add Step</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Step"
+              value={recipeStep}
+              onChangeText={setRecipeStep}
+            />
+            <TouchableOpacity style={styles.button} onPress={handleModalConfirmStep}>
+              <Text>Confirm</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={handleModalCancelStep}>
               <Text>Cancel</Text>
             </TouchableOpacity>
           </View>
@@ -155,6 +206,13 @@ function RecipeDetails() {
         //keys = name, quantity
         recipe.ingredients.map((ingredient, index) => (
           <Text key={index}>{ingredient.name} : {ingredient.quantity}</Text>
+        ))
+      }
+      <Text>Liste des étapes</Text>
+      {
+        //keys = step
+        recipe.steps.map((step, index) => (
+          <Text key={index}>{step}</Text>
         ))
       }
       <TouchableOpacity onPress={handleDownload}>
