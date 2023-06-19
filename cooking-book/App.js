@@ -1,12 +1,40 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, Button, Modal } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer, useNavigation, useRoute } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as FileSystem from 'expo-file-system';
 
-import bdd from './bdd.json';
+var bdd = {
+  recettes: [
+  ],
+}
 
+const resetBddFile = async () => {
+  try {
+    const fileUri = `${FileSystem.documentDirectory}bdd.json`;
+    await FileSystem.deleteAsync(fileUri);
+    console.log('bdd.json file deleted successfully');
+
+    // Create a new empty bdd.json file
+    await FileSystem.writeAsStringAsync(fileUri, JSON.stringify({ recettes: [] }));
+    console.log('bdd.json file created successfully');
+  } catch (error) {
+    console.log('Error resetting bdd.json file:', error);
+  }
+};
+
+const loadBdd = async () => {
+  try {
+    const fileUri = `${FileSystem.documentDirectory}bdd.json`;
+    const fileContents = await FileSystem.readAsStringAsync(fileUri);
+    const parsedBdd = JSON.parse(fileContents);
+    console.log('Bdd loaded:', parsedBdd);
+    bdd = parsedBdd;
+  } catch (error) {
+    console.log('Error reading data from file:', error);
+  }
+};
 
 // Page components
 function MainPage({ navigation }) {
@@ -39,7 +67,7 @@ function CreateRecepies() {
   const [stepsList, setStepsList] = useState([]);
   const [recipeStep, setRecipeStep] = useState('');
 
-  const handleRecipeCreate = () => {
+  const handleRecipeCreate = async () => {
     // Create a new recipe object with the captured details
     const newRecipe = {
       name: recipeName,
@@ -51,8 +79,32 @@ function CreateRecepies() {
       steps: stepsList.map((step) => step.step),
     };
     console.log(newRecipe);
+    //resetBddFile();
     // Add the new recipe to the existing recipes array
-    bdd.recettes.push(newRecipe);
+    //bdd.recettes.push(newRecipe);
+      
+    // Read the existing data from the file
+    let existingData = { recettes: [] };
+    try {
+      const fileUri = `${FileSystem.documentDirectory}bdd.json`;
+      const fileContents = await FileSystem.readAsStringAsync(fileUri);
+      existingData = JSON.parse(fileContents);
+    } catch (error) {
+      // File does not exist or failed to read, handle the error
+      console.log('Error reading data from file:', error);
+    }
+
+    // Add the new recipe to the existing data
+    existingData.recettes.push(newRecipe);
+
+    // Write the updated data back to the file
+    try {
+      const fileUri = `${FileSystem.documentDirectory}bdd.json`;
+      await FileSystem.writeAsStringAsync(fileUri, JSON.stringify(existingData));
+      console.log('Recipe saved successfully');
+    } catch (error) {
+      console.log('Error writing data to file:', error);
+    }
 
     // Reset the form fields
     setRecipeName('');
@@ -61,6 +113,7 @@ function CreateRecepies() {
     setIngredientsList([]);
     setStepsList([]);
 
+    loadBdd();
     // Navigate to the desired page or perform any other action
     // ...
   };
@@ -225,6 +278,10 @@ function RecipeDetails() {
 function SeeRecepies() {
   const navigation = useNavigation();
 
+  useEffect(() => {
+    loadBdd();
+  }, []);
+
   const handleRecipePress = (recipe) => {
     navigation.navigate('RecipeDetails',{ recipe: recipe });
   };
@@ -249,6 +306,9 @@ function SeeRecepies() {
 const Stack = createStackNavigator();
 
 export default function App() {
+  useEffect(() => {
+    loadBdd();
+  }, []);
   return (
     <NavigationContainer>
       <Stack.Navigator>
