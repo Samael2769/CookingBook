@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, Button, Modal } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, Button, Modal, ScrollView } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { NavigationContainer, useNavigation, useRoute } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -162,53 +162,64 @@ function CreateRecepies() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text>Crée recette</Text>
+    <View style={styles.creationRecetteContainer}>
+      <Text style={styles.title}>Créer recette</Text>
       <TextInput
         style={styles.input}
-        placeholder="Recipe Name"
+        placeholder="Nom de la recette"
         value={recipeName}
         onChangeText={setRecipeName}
       />
-      <TouchableOpacity style={styles.button} onPress={handleAddIngredient}>
-        <Text>Add Ingredient</Text>
-      </TouchableOpacity>
-      {ingredientsList.map((ingredient, index) => (
-        <Text key={index}>
-          {ingredient.name} - {ingredient.quantity}
-        </Text>
-      ))}
-      <TouchableOpacity style={styles.button} onPress={handleAddStep}>
-        <Text>Add Step</Text>
-      </TouchableOpacity>
-      {stepsList.map((step, index) => (
-        <Text key={index}>{step.step}</Text>
-      ))}
-      <TouchableOpacity style={styles.button} onPress={handleRecipeCreate}>
-        <Text>Create Recipe</Text>
-      </TouchableOpacity>
-
+      <View style={styles.CreationRecetteAddContainer}>
+        <TouchableOpacity style={styles.button} onPress={handleAddIngredient}>
+          <Text style={styles.buttonText}>Add Ingredient</Text>
+        </TouchableOpacity>
+        <View style={styles.ingredientsListContainer}>
+          <ScrollView contentContainerStyle={styles.ingredientsList}>
+            {ingredientsList.map((ingredient, index) => (
+              <Text key={index}>
+                {ingredient.name} - {ingredient.quantity}
+              </Text>
+            ))}
+          </ScrollView>
+        </View>
+        <TouchableOpacity style={styles.button} onPress={handleAddStep}>
+          <Text style={styles.buttonText}>Add Step</Text>
+        </TouchableOpacity>
+        <View style={styles.ingredientsListContainer}>
+          <ScrollView contentContainerStyle={styles.ingredientsList}>
+            {stepsList.map((step, index) => (
+              <Text key={index}>{step.step}</Text>
+            ))}
+          </ScrollView>
+        </View>
+        <View style={styles.CreationRecetteAddContainerCreate}>
+          <TouchableOpacity style={styles.button} onPress={handleRecipeCreate}>
+            <Text style={styles.buttonText}>Create Recipe</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
       <Modal visible={modalVisible}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text>Add Ingredient</Text>
+            <Text style={styles.modalTitle}>Add Ingredient</Text>
             <TextInput
-              style={styles.input}
+              style={styles.modalInput}
               placeholder="Ingredient"
               value={recipeIngredient}
               onChangeText={setRecipeIngredient}
             />
             <TextInput
-              style={styles.input}
+              style={styles.modalInput}
               placeholder="Quantity"
               value={recipeQuantity}
               onChangeText={setRecipeQuantity}
             />
-            <TouchableOpacity style={styles.button} onPress={handleModalConfirm}>
-              <Text>Confirm</Text>
+            <TouchableOpacity style={styles.modalButton} onPress={handleModalConfirm}>
+              <Text style={styles.modalButtonText}>Confirm</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={handleModalCancel}>
-              <Text>Cancel</Text>
+            <TouchableOpacity style={styles.modalButton} onPress={handleModalCancel}>
+              <Text style={styles.modalButtonText}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -216,18 +227,18 @@ function CreateRecepies() {
       <Modal visible={stepModalVisible}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text>Add Step</Text>
+            <Text style={styles.modalTitle}>Add Step</Text>
             <TextInput
-              style={styles.input}
+              style={styles.modalInput}
               placeholder="Step"
               value={recipeStep}
               onChangeText={setRecipeStep}
             />
-            <TouchableOpacity style={styles.button} onPress={handleModalConfirmStep}>
-              <Text>Confirm</Text>
+            <TouchableOpacity style={styles.modalButton} onPress={handleModalConfirmStep}>
+              <Text style={styles.modalButtonText}>Confirm</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={handleModalCancelStep}>
-              <Text>Cancel</Text>
+            <TouchableOpacity style={styles.modalButton} onPress={handleModalCancelStep}>
+              <Text style={styles.modalButtonText}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -330,10 +341,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   button: {
-    marginTop: 10,
-    padding: 10,
-    backgroundColor: 'lightblue',
+    marginTop: -20,
+    padding: 8,
+    backgroundColor: 'darkgrey',
     borderRadius: 5,
+    width: 250, // Adjust the value to your desired width
+    alignItems: 'center',
+  },
+  buttonText: {
+    fontSize: 20,
+    fontWeight: 'bold',
   },
   recetteContainer: {
     marginBottom: 10,
@@ -346,11 +363,82 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Couleur de fond semi-transparente
+    backgroundColor: 'orange',
   },
   modalContent: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FF6F00',
     padding: 20,
-    borderRadius: 5,
+    borderRadius: 20,
   },
+  modalInput: {
+    height: 50,
+    width: 250,
+    margin: 12,
+    borderWidth: 2,
+    padding: 10,
+    fontSize: 17,
+    borderRadius: 10,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    alignSelf: 'center',
+  },
+  modalButton: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: 'lightblue',
+    borderRadius: 10,
+    width: 250, // Adjust the value to your desired width
+    alignItems: 'center',
+    alignSelf: 'center',
+  },
+  modalButtonText: {
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+  creationRecetteContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'orange',
+  },
+  CreationRecetteAddContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'orange',
+    top: 10,
+  },
+  CreationRecetteAddContainerCreate: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'orange',
+  },
+  ingredientsList: {
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 50,
+    fontWeight: 'bold',
+    marginTop: 90,
+  },
+  input: {
+    height: 40,
+    width: 250,
+    margin: 12,
+    fontSize: 20,
+    borderWidth: 3,
+    padding: 10,
+    marginTop: 20,
+  },
+  ingredientsListContainer: {
+    height: '20%',
+    width: 250,
+    marginTop: 0,
+    marginBottom: 20,
+  },
+  
 });
